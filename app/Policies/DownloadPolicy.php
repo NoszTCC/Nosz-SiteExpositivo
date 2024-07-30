@@ -8,5 +8,4 @@ use Illuminate\Auth\Access\Response;
 
 class DownloadPolicy
 {
-    
 }

@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use Kreait\Laravel\Firebase\Facades\Firebase;
 use Illuminate\Http\Request;
 use App\Models\Download;
 use Illuminate\Support\Facades\Response;
 use Kreait\Firebase\Exception\FirebaseException;
 use Kreait\Firebase\Factory;
+use Illuminate\Support\Facades\Hash;
 
 class DownloadController extends Controller
 {
@@ -74,11 +74,13 @@ class DownloadController extends Controller
         define('TELEFONE', '/^\(\d{2}\) \d{4,5}\-\d{4}$/');
         define('MIN', 'min:');
         define('MAX', 'max:');
+        define('TAMANHO', 'size:');
 
         $erro = [
             'tipo.required' => 'Selecione se você é um cliente ou parceiro',
             'email.unique' => 'E-mail existente, pode fazer o login no app ou altere sua senha',
             'senha.min' => 'Escolha uma senha mais forte',
+            'confirmarSenha.same' => 'As senhas não coincidem',
             'cpfcnpj.unique' => 'CPF/CNPJ já cadastrado no sistema',
             'telefone.unique' => 'Telefone já cadastrado no sistema',
             'cpfcnpj.min' => 'CPF/CNPJ menor que esperado',
@@ -87,8 +89,11 @@ class DownloadController extends Controller
             'telefone.max' => 'Telefone maior que esperado',
             'cpfcnpj.regex' => 'Redigite seu CPF/CNPJ',
             'telefone.regex' => 'Redigite seu Telefone inválido',
-            'estado.min' => 'Digite o estado corretamente',
-            'estado.max' => 'Digite o estado corretamente'
+            'numero.min' =>  'Número menor que esperado',
+            'numero.max' =>  'Número maior que esperado',
+            'estado.size' => 'Digite o estado corretamente',
+            'logo.mimes' =>  'Escolha outro formato de imagem para a logo',
+            'logo.max' => 'Nome de arquivo longo'
         ];
 
         try {
@@ -101,14 +106,15 @@ class DownloadController extends Controller
             'cpfcnpj' => CARACTERE . OBRIGATORIO . UNICO . 'cpfcnpj|' . MIN . '14|' . MAX . '18|regex:' . CPFCNPJ,
             'telefone' => CARACTERE . OBRIGATORIO . UNICO . 'telefone|' . MIN . '15|' . MAX . '15|regex:' . TELEFONE,
             'rua' => CARACTERE . OBRIGATORIO,
-            'numero' => NUMERO . OBRIGATORIO,
+            'numero' => NUMERO . OBRIGATORIO . MIN . '1|' . MAX . '5',
             'bairro' => CARACTERE . OBRIGATORIO,
             'cidade' => CARACTERE . OBRIGATORIO,
-            'estado' => CARACTERE . OBRIGATORIO . MIN . '2|' . MAX . '2',
+            'estado' => CARACTERE . OBRIGATORIO . TAMANHO . '2',
             'restaurante' => CARACTERE . OPCIONAL,
             'logo' => 'file|' . OPCIONAL . 'mimes:jpeg,png,jpg,gif,svg|' . MAX . '2048',
             'mensagem' => CARACTERE . OPCIONAL
             ], $erro);
+            $validacao['senha'] = Hash::make($validacao['senha']);
 
             if ($logo !== null) {
                 $nmArquivo = time() . '_'. $logo->getClientOriginalName();
