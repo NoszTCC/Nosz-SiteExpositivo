@@ -13,7 +13,7 @@ class DownloadController extends Controller
 {
     private $autenticacao;
     private $firestore;
-    private $storage;
+    private $armazenamento;
 
     public function __construct()
     {
@@ -21,7 +21,7 @@ class DownloadController extends Controller
 
         $this->autenticacao = (new Factory)->withServiceAccount($contaServico)->createAuth();
         $this->firestore = (new Factory)->withServiceAccount($contaServico)->createFirestore()->database();
-        $this->storage = (new Factory)->withServiceAccount($contaServico)->createStorage();
+        $this->armazenamento = (new Factory)->withServiceAccount($contaServico)->createStorage();
     }
 
     public function mostrarDownload()
@@ -34,8 +34,8 @@ class DownloadController extends Controller
         $email = $requisicao->input('email');
 
         try {
-            $emailExists = $this->autenticacao->getUserByEmail($email);
-            if ($emailExists) {
+            $emailUsuario = $this->autenticacao->getUserByEmail($email);
+            if ($emailUsuario) {
                 return Response::json(data: ['messagem' => 'Usuário já cadastrado'], status: 400);
             }
         } catch (FirebaseException) {
@@ -51,9 +51,9 @@ class DownloadController extends Controller
         $logo = $requisicao->file('logo');
         $senha = $requisicao->input('senha');
 
-        define('CARACTERE', 'string|');
-        define('OPCIONAL', 'nullable|');
-        define('OBRIGATORIO', 'required|');
+        define('CARACTERE', 'string');
+        define('OPCIONAL', 'nullable');
+        define('OBRIGATORIO', 'required');
         define('UNICO', 'unique:downloads,');
         define('FORMATACAO', 'regex:');
         if ($tipo === "users") {
@@ -90,31 +90,31 @@ class DownloadController extends Controller
 
         try {
             $validacao = $requisicao->validate([
-                'tipo' => CARACTERE . OBRIGATORIO . 'in:users,parceiros|',
-                'nome' => CARACTERE . OBRIGATORIO,
-                'email' => 'email|' . OBRIGATORIO . UNICO . 'email',
-                'senha' => CARACTERE . OBRIGATORIO . MIN . '6',
-                'confirmarSenha' => CARACTERE . OBRIGATORIO . 'same:senha',
-                'cpfcnpj' => CARACTERE . OBRIGATORIO . UNICO . 'cpfcnpj|' . MIN . '14|' . MAX . '18|' .
-                    FORMATACAO . CPFCNPJ,
-                'telefone' => CARACTERE . OBRIGATORIO . UNICO . 'telefone|' . MIN . '15|' . MAX . '15|' .
-                    FORMATACAO . TELEFONE,
-                'cep' => CARACTERE . OBRIGATORIO . MIN . '8|' . MAX . '10',
-                'rua' => CARACTERE . OBRIGATORIO,
-                'numero' => 'integer|' . OBRIGATORIO . MIN . '1|' . 'max_digits: 5',
-                'bairro' => CARACTERE . OBRIGATORIO,
-                'cidade' => CARACTERE . OBRIGATORIO,
-                'estado' => CARACTERE . OBRIGATORIO . TAMANHO . '2',
-                'restaurante' => CARACTERE . OPCIONAL,
-                'logo' => 'file|' . OPCIONAL . 'mimes:jpeg,png,jpg,gif,svg|' . MAX . '2048',
-                'mensagem' => CARACTERE . OPCIONAL
+                'tipo' => [CARACTERE, OBRIGATORIO, 'in:users,parceiros'],
+                'nome' => [CARACTERE, OBRIGATORIO],
+                'email' => ['email', OBRIGATORIO, UNICO . 'email'],
+                'senha' => [CARACTERE, OBRIGATORIO, MIN . '6'],
+                'confirmarSenha' => [CARACTERE, OBRIGATORIO, 'same:senha'],
+                'cpfcnpj' => [CARACTERE, OBRIGATORIO, UNICO . 'cpfcnpj', MIN . '14', MAX . '18',
+                    FORMATACAO . CPFCNPJ],
+                'telefone' => [CARACTERE, OBRIGATORIO, UNICO . 'telefone', MIN . '15', MAX . '15',
+                    FORMATACAO . TELEFONE],
+                'cep' => [CARACTERE, OBRIGATORIO, MIN . '8', MAX . '10'],
+                'rua' => [CARACTERE, OBRIGATORIO],
+                'numero' => ['integer', OBRIGATORIO, MIN . '1', 'max_digits: 5'],
+                'bairro' => [CARACTERE, OBRIGATORIO],
+                'cidade' => [CARACTERE, OBRIGATORIO],
+                'estado' => [CARACTERE, OBRIGATORIO, TAMANHO . '2'],
+                'restaurante' => [CARACTERE, OPCIONAL],
+                'logo' => ['file', OPCIONAL, 'mimes:jpeg,png,jpg,gif,svg|', MAX . '2048'],
+                'mensagem' => [CARACTERE, OPCIONAL]
             ], $erro);
             $validacao['senha'] = Hash::make($validacao['senha']);
 
             if ($logo !== null) {
                 $nmArquivo = time() . '_' . $logo->getClientOriginalName();
                 $pasta = $logo->getPathName();
-                $armazenamento = $this->storage->getBucket();
+                $armazenamento = $this->armazenamento->getBucket();
                 $caminho = 'logos/' . $nmArquivo;
                 $armazenamento->upload(fopen($pasta, 'r'), ['name' => $caminho]);
                 $referencia = $armazenamento->object($caminho);

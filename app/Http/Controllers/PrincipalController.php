@@ -19,9 +19,9 @@ class PrincipalController extends Controller
     {
         try {
             $contatos = $request->validate([
-                'nome' => 'required|string|max:150',
-                'email' => 'required|email|max:255',
-                'mensagem' => 'required|string'
+                'nome' => ['required', 'string', 'max:150'],
+                'email' => ['required', 'email', 'max:255'],
+                'mensagem' => ['required', 'string']
             ]);
 
             Mail::to('nosztcc@gmail.com')

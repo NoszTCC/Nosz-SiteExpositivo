@@ -27,7 +27,7 @@ return new class extends Migration
             $tabela->string('estado');
             $tabela->string('restaurante')->nullable();
             $tabela->string('logo')->nullable();
-            $tabela->string('mensagem')->nullable();
+            $tabela->longText('mensagem')->nullable();
             $tabela->timestamps();
         });
     }
