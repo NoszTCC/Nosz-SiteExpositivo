@@ -2,22 +2,19 @@
 
 namespace Database\Factories;
 
+use App\Models\Principal;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Principal>
- */
 class PrincipalFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
-    public function definition(): array
+    protected $model = Principal::class;
+
+    public function definition()
     {
         return [
-            //
+            'nome' => $this->faker->name,
+            'email' => $this->faker->safeEmail,
+            'mensagem' => $this->faker->sentence,
         ];
     }
 }

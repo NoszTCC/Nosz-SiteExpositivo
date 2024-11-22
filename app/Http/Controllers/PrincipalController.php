@@ -17,6 +17,8 @@ class PrincipalController extends Controller
 
     public function enviarEMail(Request $request)
     {
+        $contatos = [];
+
         try {
             $contatos = $request->validate([
                 'nome' => ['required', 'string', 'max:150'],

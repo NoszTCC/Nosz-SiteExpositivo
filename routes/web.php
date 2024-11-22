@@ -6,11 +6,11 @@ use App\Http\Controllers\DownloadController;
 
 Route::controller(PrincipalController::class)->group(function () {
     Route::get('/', 'mostrarPrincipal')->name('mostrarPrincipal');
-    Route::post('/', 'enviarEMail')->name("enviarEMail");
+    Route::post('/envioEMail', 'enviarEMail')->name("enviarEMail");
 });
 
 Route::controller(DownloadController::class)->group(function () {
     Route::get('/download', 'mostrarDownload')->name('mostrarDownload');
-    Route::post('/download', 'cadastrarFBAuth')->name('cadastrarFBAuth');
+    Route::post('/cadastro', 'cadastrarFBAuth')->name('cadastrarFBAuth');
     Route::get('verificarEmail', 'emailExistente')->name('emailExistente');
 });

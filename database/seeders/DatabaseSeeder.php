@@ -2,8 +2,9 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
 use Illuminate\Database\Seeder;
+use App\Models\Principal;
+use App\Models\Download;
 
 class DatabaseSeeder extends Seeder
 {
@@ -12,9 +13,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        Principal::factory(1)->create();
+        Download::factory(1)->create();
     }
 }
